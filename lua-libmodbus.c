@@ -986,12 +986,14 @@ static int ctx_write_registers(lua_State *L)
 	return rcount;
 }
 
-static int ctx_send_raw_request(lua_State *L)
+static int ctx_send_raw_msg(lua_State *L)
 {
 	ctx_t *ctx = ctx_check(L, 1);
 	int rc;
 	int rcount;
 	int count = lua_rawlen(L, 2);
+	int as_response = lua_toboolean(L, 3);
+
 	luaL_checktype(L, 2, LUA_TTABLE);
 	/* array style table only! */
 
@@ -1008,7 +1010,8 @@ static int ctx_send_raw_request(lua_State *L)
 		buf[i-1] = lua_tonumber(L, -1);
 		lua_pop(L, 1);
 	};
-	rc = modbus_send_raw_request(ctx->modbus, buf, count);
+
+	rc = modbus_send_raw_msg(ctx->modbus, buf, count, as_response);
 
 	if (rc < 0) {
 		lua_pushnil(L);
@@ -1033,6 +1036,12 @@ static int ctx_send_raw_request(lua_State *L)
 	free(buf);
 	return rcount;
 
+}
+
+// dummy for compatibility
+static int ctx_send_raw_request(lua_State *L)
+{
+	return ctx_send_raw_msg(lua_State *L);
 }
 
 static int ctx_tcp_pi_listen(lua_State *L)
@@ -1254,6 +1263,7 @@ static const struct luaL_Reg ctx_M[] = {
 	{"write_bits",		ctx_write_bits},
 	{"write_register",	ctx_write_register},
 	{"write_registers",	ctx_write_registers},
+	{"send_raw_msg",	ctx_send_raw_msg},
 	{"send_raw_request",	ctx_send_raw_request},
 	{"__gc",		ctx_destroy},
 	{"__tostring",		ctx_tostring},
