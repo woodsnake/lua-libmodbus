@@ -1041,7 +1041,7 @@ static int ctx_send_raw_msg(lua_State *L)
 // dummy for compatibility
 static int ctx_send_raw_request(lua_State *L)
 {
-	return ctx_send_raw_msg(lua_State *L);
+	return ctx_send_raw_msg(L);
 }
 
 static int ctx_tcp_pi_listen(lua_State *L)
