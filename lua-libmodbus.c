@@ -1043,6 +1043,9 @@ static int ctx_send_raw_response(lua_State *L)
 	ctx_t *ctx = ctx_check(L, 1);
 	int rc;
 	int rcount;
+	size_t req_len;
+	
+	const char *req = luaL_checklstring(L, 2, &req_len);
 	
 	int count = lua_rawlen(L, 3);
 	
@@ -1063,7 +1066,7 @@ static int ctx_send_raw_response(lua_State *L)
 		lua_pop(L, 1);
 	};
 
-	rc = modbus_send_raw_request(ctx->modbus, buf, count);
+	rc = modbus_send_raw_response(ctx->modbus, req, buf, count);
 
 	if (rc < 0) {
 		lua_pushnil(L);
