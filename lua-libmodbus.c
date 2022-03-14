@@ -1046,7 +1046,6 @@ static int ctx_send_raw_response(lua_State *L)
 	
 	int count = lua_rawlen(L, 3);
 	
-
 	luaL_checktype(L, 3, LUA_TTABLE);
 	/* array style table only! */
 
@@ -1054,7 +1053,7 @@ static int ctx_send_raw_response(lua_State *L)
 	uint8_t *buf = malloc(lua_rawlen(L, 3) * sizeof(uint8_t));
 	assert(buf);
 	for (int i = 1; i <= count; i++) {
-		lua_rawgeti(L, 2, i);
+		lua_rawgeti(L, 3, i);
 		/* user beware! we're not range checking your values */
 		if (lua_type(L, -1) != LUA_TNUMBER) {
 			free(buf);
@@ -1075,7 +1074,7 @@ static int ctx_send_raw_response(lua_State *L)
 		lua_pushboolean(L, true);
 		rcount = 1;
 	}
-	long wait = lua_tonumber(L,3);
+	long wait = lua_tonumber(L,4);
 	if (wait > 0) {
 		static struct timeval tim;
 		tim.tv_sec = 0;
