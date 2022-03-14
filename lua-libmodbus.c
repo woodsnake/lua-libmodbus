@@ -1263,8 +1263,8 @@ static const struct luaL_Reg ctx_M[] = {
 	{"write_bits",		ctx_write_bits},
 	{"write_register",	ctx_write_register},
 	{"write_registers",	ctx_write_registers},
-	{"send_raw_msg",	ctx_send_raw_msg},
 	{"send_raw_request",	ctx_send_raw_request},
+	{"send_raw_response",	ctx_send_raw_response},
 	{"__gc",		ctx_destroy},
 	{"__tostring",		ctx_tostring},
 	
