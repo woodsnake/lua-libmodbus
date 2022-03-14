@@ -986,7 +986,7 @@ static int ctx_write_registers(lua_State *L)
 	return rcount;
 }
 
-static int ctx_send_raw_msg(lua_State *L)
+static int ctx_send_raw_request(lua_State *L)
 {
 	ctx_t *ctx = ctx_check(L, 1);
 	int rc;
@@ -1038,10 +1038,55 @@ static int ctx_send_raw_msg(lua_State *L)
 
 }
 
-// dummy for compatibility
-static int ctx_send_raw_request(lua_State *L)
+static int ctx_send_raw_response(lua_State *L)
 {
-	return ctx_send_raw_msg(L);
+	ctx_t *ctx = ctx_check(L, 1);
+	int rc;
+	int rcount;
+	int count = lua_rawlen(L, 2);
+	
+
+	luaL_checktype(L, 2, LUA_TTABLE);
+	/* array style table only! */
+
+	/* Convert table to uint8_t array */
+	uint8_t *buf = malloc(lua_rawlen(L, 2) * sizeof(uint8_t));
+	assert(buf);
+	for (int i = 1; i <= count; i++) {
+		lua_rawgeti(L, 2, i);
+		/* user beware! we're not range checking your values */
+		if (lua_type(L, -1) != LUA_TNUMBER) {
+			free(buf);
+			return luaL_argerror(L, 2, "table values must be numeric");
+		}
+		buf[i-1] = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+	};
+
+	rc = modbus_send_raw_request(ctx->modbus, buf, count);
+
+	if (rc < 0) {
+		lua_pushnil(L);
+		lua_pushstring(L, modbus_strerror(errno));
+		rcount = 2;
+	} else {
+                // wait
+		lua_pushboolean(L, true);
+		rcount = 1;
+	}
+	long wait = lua_tonumber(L,3);
+	if (wait > 0) {
+		static struct timeval tim;
+		tim.tv_sec = 0;
+		tim.tv_usec = wait;
+		if (select(0, NULL, NULL, NULL, &tim) < 0) {
+			lua_pushnil(L);
+			return 2;
+		};
+	}
+
+	free(buf);
+	return rcount;
 }
 
 static int ctx_tcp_pi_listen(lua_State *L)
