@@ -1043,14 +1043,15 @@ static int ctx_send_raw_response(lua_State *L)
 	ctx_t *ctx = ctx_check(L, 1);
 	int rc;
 	int rcount;
-	int count = lua_rawlen(L, 2);
+	
+	int count = lua_rawlen(L, 3);
 	
 
-	luaL_checktype(L, 2, LUA_TTABLE);
+	luaL_checktype(L, 3, LUA_TTABLE);
 	/* array style table only! */
 
 	/* Convert table to uint8_t array */
-	uint8_t *buf = malloc(lua_rawlen(L, 2) * sizeof(uint8_t));
+	uint8_t *buf = malloc(lua_rawlen(L, 3) * sizeof(uint8_t));
 	assert(buf);
 	for (int i = 1; i <= count; i++) {
 		lua_rawgeti(L, 2, i);
